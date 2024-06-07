@@ -38,6 +38,9 @@ const extractKnownKeys = ( extensionData ) => {
     if ( extensionJSON.descriptionmsg !== undefined ) {
         knownKeys.push( extensionJSON.descriptionmsg );
     }
+    if ( extensionJSON.namemsg !== undefined ) {
+        knownKeys.push( extensionJSON.namemsg );
+    }
     if ( extensionJSON.AvailableRights !== undefined ) {
         extensionJSON.AvailableRights.forEach(
             ( right ) => {
