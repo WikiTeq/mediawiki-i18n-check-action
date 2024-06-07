@@ -1,0 +1,32 @@
+name: 'Mediawiki Extension I18N Checker'
+description: 'Checks that internationalization strings are set up properly'
+author: 'WikiTeq'
+branding:
+  color: green
+  icon: zoom-out
+inputs:
+  extension:
+    description: 'Extension name to test'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v4.0.2
+      with:
+        node-version: 22
+
+    - name: Install npm
+      run: npm i -g npm@10.8.1
+      shell: bash
+
+    - name: Install Dependencies
+      run: npm --prefix $GITHUB_ACTION_PATH ci
+      shell: bash
+
+    - uses: actions/checkout@v2
+      with:
+        path: ${{ inputs.extension }}
+
+    - name: Run checks
+      run: node $GITHUB_ACTION_PATH/run-checks.mjs $GITHUB_WORKSPACE/${{ inputs.extension }}
+      shell: bash
