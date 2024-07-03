@@ -12,7 +12,7 @@ const i18nPathBase = extName + '/i18n';
 const checkKey = ( key ) => {
     return new Promise(
         ( resolve, reject ) => {
-            const keyRegex = '(\s|^|\'|\\")' + key + '(\s|$|,|\'|\\")';
+            const keyRegex = '(\\s|^|\'|\\")' + key + '(\s|$|,|\'|\\")';
             grep(
                 [ '-r', '--exclude=*.json', '-E', keyRegex, extName + '/' ],
                 ( err, stdout, stderr ) => {
