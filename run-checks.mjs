@@ -14,7 +14,11 @@ const checkKey = ( key ) => {
         ( resolve, reject ) => {
             const keyRegex = '(\\s|^|\'|\\")' + key + '(\s|$|,|\'|\\")';
             grep(
-                [ '-r', '--exclude=*.json', '-E', keyRegex, extName + '/' ],
+                // Ignore any external libraries that have been loaded with
+                // --exclude-dir
+                [ '-r', '--exclude=*.json',
+                    '--exclude-dir=node_modules', '--exclude-dir=vendor',
+                    '-E', keyRegex, extName + '/' ],
                 ( err, stdout, stderr ) => {
                     if ( err !== null || !stdout.includes( key ) ) {
                         reject();
