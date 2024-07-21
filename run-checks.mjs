@@ -55,13 +55,30 @@ const extractKnownKeys = ( extensionData ) => {
     }
     return knownKeys;
 };
+const extractPossiblyUsedKeys = ( extensionData ) => {
+    // Some keys are *sometimes* used automatically based on extension.json:
+    // - the name of any special page, when converted to lowercase, is the
+    //   default message for that description of that special page. See
+    //   SpecialPage::getDescription(). But, special pages are allowed to
+    //   override that to return something else. Thus, if there are special
+    //   pages, recognize the default description messages as "used", but
+    //   don't also require that those default descriptions exist.
+    const extensionJSON = JSON.parse( extensionData );
+    const possiblyUnusedKeys = [];
+
+    if ( extensionJSON.SpecialPages !== undefined ) {
+        const pageNames = Object.keys( extensionJSON.SpecialPages );
+        possiblyUnusedKeys.push( ...pageNames.map( ( s ) => s.toLowerCase() ) );
+    }
+    return possiblyUnusedKeys;
+};
 const getI18nKeys = ( i18nData ) => {
     const i18nJSON = JSON.parse( i18nData );
     delete i18nJSON['@metadata'];
     return Object.keys( i18nJSON );
 };
 
-const runWithData = ( knownKeys, i18nData ) => {
+const runWithData = ( knownKeys, possiblyUnusedKeys, i18nData ) => {
     const keys = getI18nKeys( i18nData );
     // console.log( keys );
     const unfoundKeys = [];
@@ -69,6 +86,12 @@ const runWithData = ( knownKeys, i18nData ) => {
         ( k ) => { return new Promise( ( resolve ) => {
             if ( knownKeys.includes( k ) ) {
                 // No need to `grep` for a key that gets used via extension.json
+                resolve();
+                return;
+            }
+            if ( possiblyUnusedKeys.includes( k ) ) {
+                // No need to `grep` for a key that *might* get automatically
+                // used via extension.json
                 resolve();
                 return;
             }
@@ -118,7 +141,11 @@ fs.readFile(
                     console.error( err2 );
                     process.exit( 1 );
                 }
-                runWithData( extractKnownKeys( extData ), i18nData );
+                runWithData(
+                    extractKnownKeys( extData ),
+                    extractPossiblyUsedKeys( extData ),
+                    i18nData
+                );
             }
         )
     }
