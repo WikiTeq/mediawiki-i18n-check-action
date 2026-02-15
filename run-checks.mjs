@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import grep from 'grep1';
 
 if ( process.argv.length !== 3 ) {
@@ -6,13 +7,24 @@ if ( process.argv.length !== 3 ) {
     process.exit( 1 );
 }
 
-const extName = process.argv[2];
+let extName = path.resolve( process.argv[2] );
+const workspace = process.env.GITHUB_WORKSPACE;
+if ( workspace ) {
+    const resolvedWorkspace = path.resolve( workspace );
+    if ( !extName.startsWith( resolvedWorkspace + path.sep ) && extName !== resolvedWorkspace ) {
+        console.error( 'Extension path must be inside GITHUB_WORKSPACE' );
+        process.exit( 1 );
+    }
+}
+
 const i18nPathBase = extName + '/i18n';
+
+const escapeRegex = ( s ) => s.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
 
 const checkKey = ( key ) => {
     return new Promise(
         ( resolve, reject ) => {
-            const keyRegex = '(\\s|^|\'|\\")' + key + '(\s|$|,|\'|\\")';
+            const keyRegex = '(\\s|^|\'|\\")' + escapeRegex( key ) + '(\s|$|,|\'|\\")';
             grep(
                 // Ignore any external libraries that have been loaded with
                 // --exclude-dir
