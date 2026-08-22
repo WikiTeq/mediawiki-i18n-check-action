@@ -12,7 +12,7 @@ const i18nPathBase = extName + '/i18n';
 const checkKey = ( key ) => {
     return new Promise(
         ( resolve, reject ) => {
-            const keyRegex = '(\\s|^|\'|\\")' + key + '(\s|$|,|\'|\\")';
+            const keyRegex = '(\\s|^|\'|\\")' + key + '(\\s|$|,|\'|\\")';
             grep(
                 // Ignore any external libraries that have been loaded with
                 // --exclude-dir
